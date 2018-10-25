@@ -1,0 +1,178 @@
+<html lang="en">
+<head>
+	<title>Custom Image cropper</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+
+	<div class="container">
+
+		<input id="imageFile" type="file">
+		<img src="" id="output">
+
+		<!-- Modal -->
+		<div class="modal fade" id="cropingModal" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Crop Image</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+
+					</div>
+					<div class="modal-body">
+						<img src="" id="previmage" height="300" width="500" class="img-fluid">
+
+						<select class="form-control mt-4" id="image_crop_option">
+							<option value="full">Full Size</option>
+							<option value="medium">Medium Size</option>
+							<option value="small">Small Size</option>
+							<option value="custome">Custome Size</option>
+						</select>
+
+						<div class="row mt-4 d-none" id="custome_image_resizer">
+							<div class="input-group input-search cursor-pointer col">
+								<div class="input-group-append">
+									<span class="input-group-text border-0 bg-white">
+										Width:
+									</span>
+								</div>
+								<input type="text" class="form-control bg-light bg-white rounded" id="img_elem_width">
+							</div>
+
+							<div class="input-group input-search cursor-pointer col">
+								<div class="input-group-append">
+									<span class="input-group-text border-0 bg-white">
+										Height:
+									</span>
+								</div>
+								<input type="text" class="form-control bg-light bg-white rounded" id="img_elem_hight">
+							</div>
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" id="save_cropper_img">Save</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+
+</body>
+</html>
+
+
+
+<script>
+
+	/* Script for save image into base64String while click on save btn */
+	$(document).on("click", "#save_cropper_img", function() {
+		ResizeImage();
+	});
+
+	/* Script add image croping options */
+	$(document).on("change", "#image_crop_option", function(e) {
+		e.preventDefault();
+
+		let selectedopt = document.getElementById('image_crop_option').value;
+		if(selectedopt == "custome") {
+			document.getElementById('custome_image_resizer').classList.remove("d-none");
+		}
+	});
+
+	/* Script for add image for crop with preview */
+	$(document).on("change", "#imageFile", function() {
+
+		Displayimg();
+		$("#cropingModal").modal("show");
+	});
+
+	/* Function for display image into modal window */
+	function Displayimg() {
+
+		let filesToUpload = document.getElementById('imageFile').files;
+		let file = filesToUpload[0];
+		let img = document.createElement("img");
+		let reader = new FileReader();
+		
+		reader.onload = function(e) {
+			document.getElementById("previmage").src = e.target.result;
+		}
+
+		reader.readAsDataURL(file);
+	}
+	
+	/* Script for resize image and return resized image */
+	function ResizeImage() {
+
+		let selectedopt = document.getElementById('image_crop_option').value;
+		let filesToUpload = document.getElementById('imageFile').files;
+		let file = filesToUpload[0];
+		let img = document.createElement("img");
+		let reader = new FileReader();
+		let width;
+		let height;
+
+		reader.onload = function(e) {
+
+			img.src = e.target.result;
+
+			const img_width = img.width;
+			const img_height = img.height;
+			
+			if(selectedopt == "full") {
+
+				width = img_width;
+				height = img_height;
+
+			} else if(selectedopt == "medium") {
+
+				width = 950;
+				height = 323;
+
+			} else if(selectedopt == "small") {
+
+				width = 468;
+				height = 60;
+
+			} else if(selectedopt == "custome") {
+
+				width = document.getElementById("img_elem_width").value;
+				height = document.getElementById("img_elem_hight").value;
+			}
+
+			var canvas = document.createElement("canvas");
+			var ctx = canvas.getContext("2d");
+			ctx.drawImage(img, 0, 0);
+
+			canvas.width = width;
+			canvas.height = height;
+
+			console.log(` Width = ${width}  and Height = ${height}`);
+			console.log("====== Height and width displayed =======");
+
+			var ctx = canvas.getContext("2d");
+			ctx.drawImage(img, 0, 0, width, height);
+
+			var dataurl = canvas.toDataURL("image/png");
+			
+			console.log(dataurl);
+			console.log(" New image base64 data ");
+
+			//document.getElementById('previmage').src = dataurl;
+		}
+
+		reader.readAsDataURL(file);
+	}
+
+</script>
