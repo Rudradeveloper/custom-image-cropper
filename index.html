@@ -112,14 +112,14 @@
 		reader.readAsDataURL(file);
 	}
 	
-	/* Script for resize image and return resized image */
+	/* Script for resize image and return resized image (Resize without proportionally) */
 	function ResizeImage() {
 
 		let selectedopt = document.getElementById('image_crop_option').value;
 		let filesToUpload = document.getElementById('imageFile').files;
 		let file = filesToUpload[0];
 		let img = document.createElement("img");
-		let reader = new FileReader();
+		let reader1 = new FileReader();
 		let width;
 		let height;
 
@@ -170,6 +170,61 @@
 			console.log(" New image base64 data ");
 
 			//document.getElementById('previmage').src = dataurl;
+		}
+
+		reader.readAsDataURL(file);
+	}
+
+	/* Resize image a/c to correct proportion */
+	function resizeimgProportionally() {
+
+		let selectedopt = document.getElementById('image_crop_option').value;
+		let filesToUpload = document.getElementById('imageFile').files;
+		let file = filesToUpload[0];
+		let img = document.createElement("img");
+		let reader = new FileReader();
+		let width;
+		let height;
+		var canvas = document.createElement('canvas');
+
+		reader.onload = function(e) {
+
+			img.src = e.target.result;
+
+			alert("reader active");
+			
+			var ctx = canvas.getContext("2d"),
+			oc = document.createElement('canvas'),
+			octx = oc.getContext('2d');
+
+			canvas.width = 100; // destination canvas size
+			canvas.height = canvas.width * img.height / img.width;
+
+			console.log(` Image proportional width = ${canvas.width} and proportional height = ${canvas.height}`);
+
+			var cur = {
+				width: Math.floor(img.width * 0.5),
+				height: Math.floor(img.height * 0.5)
+			}
+
+			oc.width = cur.width;
+			oc.height = cur.height;
+
+			octx.drawImage(img, 0, 0, cur.width, cur.height);
+
+			while (cur.width * 0.5 > width) {
+				cur = {
+					width: Math.floor(cur.width * 0.5),
+					height: Math.floor(cur.height * 0.5)
+				};
+				octx.drawImage(oc, 0, 0, cur.width * 2, cur.height * 2, 0, 0, cur.width, cur.height);
+			}
+
+			ctx.drawImage(oc, 0, 0, cur.width, cur.height, 0, 0, canvas.width, canvas.height);
+			var dataurl = canvas.toDataURL("image/png");
+			
+			console.log(dataurl);
+			console.log(" New image base64 data ");
 		}
 
 		reader.readAsDataURL(file);
